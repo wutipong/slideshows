@@ -1,21 +1,17 @@
 package com.playground_soft.widget;
 
-import com.playground_soft.slideshows.R;
-import com.playground_soft.slideshows.R.id;
-import com.playground_soft.slideshows.R.layout;
-
 import android.app.Fragment;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.ListAdapter;
+
+import com.playground_soft.slideshows.R;
 
 public class GridFragment extends Fragment implements OnItemClickListener {
 

@@ -12,5 +12,7 @@
     <string name="ok">OK</string>
     <string name="network_path">Network Path</string>
     <string name="title_activity_file_browser">File Browser</string>
+    <string name="Name">name</string>
+    <string name="name">Name</string>
 
 </resources>

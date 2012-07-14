@@ -1,7 +1,6 @@
 package com.playground_soft.slideshows;
 
 import android.app.DialogFragment;
-import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;

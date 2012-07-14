@@ -1,7 +1,7 @@
 package com.playground_soft.slideshows;
 
-import android.os.Bundle;
 import android.app.Activity;
+import android.os.Bundle;
 import android.view.Menu;
 
 public class ImageViewActivity extends Activity {

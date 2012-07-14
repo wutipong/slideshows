@@ -1,17 +1,11 @@
 package com.playground_soft.slideshows;
 
-import java.io.IOException;
-
-import com.playground_soft.slideshows.R;
-
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
-
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.LayoutInflater;
@@ -71,8 +65,8 @@ public class SmbBitmapFileAdapter implements ListAdapter {
 
 		TextView tv1 = (TextView) v.findViewById(R.id.textView1);
 		TextView tv2 = (TextView) v.findViewById(R.id.textView2);
-		ImageView ic = (ImageView) v.findViewById(R.id.iconView);
-		
+		final ImageView ic = (ImageView) v.findViewById(R.id.iconView);
+		final int pos = position;
 		ic.setImageBitmap(null);
 		SmbFile subFile = files[position];
 		String filename = subFile.getName();
@@ -89,9 +83,19 @@ public class SmbBitmapFileAdapter implements ListAdapter {
 						ic.setImageBitmap(bitmap);
 					} else {
 						ic.setImageBitmap(tempBitmap);
-						LoadImageTask task = new LoadImageTask(ic, position,
-								subFile);
-						task.execute();
+						LoadImageTask task = new LoadImageTask(150, 150, LoadImageTask.ScaleBaseOn.ShorterSide, 
+								new LoadImageTask.TaskDone() {
+									
+									@Override
+									void onTaskDone(Bitmap bitmap) {
+
+										cache.put(pos, bitmap);
+										ic.setImageBitmap(bitmap);
+										
+									}
+								}) ;
+								
+						task.execute(subFile);
 					}
 				}
 			}
@@ -121,63 +125,6 @@ public class SmbBitmapFileAdapter implements ListAdapter {
 		}
 
 		return v;
-	}
-
-	private class LoadImageTask extends AsyncTask<Void, Void, Bitmap> {
-
-		private ImageView iv;
-		private int position;
-		private SmbFile file;
-
-		protected LoadImageTask(ImageView iv, int position, SmbFile file) {
-			this.iv = iv;
-			this.position = position;
-			this.file = file;
-		}
-
-		@Override
-		protected Bitmap doInBackground(Void... params) {
-			try {
-				BitmapFactory.Options options = new BitmapFactory.Options();
-				options.inJustDecodeBounds = true;
-				//options.inSampleSize = 4;
-				 BitmapFactory.decodeStream(file
-						.getInputStream(), null, options);
-				
-				int width = options.outWidth;
-				int height = options.outHeight;
-				
-				int shorterSide = (width<height)? width : height;
-				
-				//double ratio = ((double) width) / ((double) height);
-				int thumbSize = 150;
-				int ratio = shorterSide / thumbSize;
-				
-				int newRatio = 1;
-				for (int i = 0; ratio > newRatio; i++) {
-					newRatio = (int)Math.pow(2, i);
-				}
-					
-				options.inSampleSize = newRatio;
-				options.inJustDecodeBounds = false;
-
-				Bitmap bitmap = BitmapFactory.decodeStream(file
-						.getInputStream(), null, options);
-				
-				return bitmap;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Bitmap result) {
-			super.onPostExecute(result);
-			cache.put(position, result);
-			iv.setImageBitmap(result);
-		}
 	}
 
 	@Override

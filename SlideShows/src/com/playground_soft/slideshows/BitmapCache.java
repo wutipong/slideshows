@@ -1,7 +1,6 @@
 package com.playground_soft.slideshows;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.util.LruCache;
 
 public class BitmapCache extends LruCache<Integer, Bitmap> {
