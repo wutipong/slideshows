@@ -1,5 +1,6 @@
 package com.playground_soft.slideshows;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -27,20 +28,26 @@ public class FileBrowserFragment extends GridFragment {
 	private String domain;
 	private String userid;
 	private String password;
-
+	private SmbBitmapFileAdapter adapter = null;
+	private URL url;
+	private NtlmPasswordAuthentication auth;
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 
 		super.onActivityCreated(savedInstanceState);
 		dialog = ProgressDialog
 				.show(getActivity(), "loading...", "Please Wait");
-		ListFileTask task = new ListFileTask(getActivity());
-
+		
+		url = (URL)getActivity().getIntent().getSerializableExtra("url");
+		auth = (NtlmPasswordAuthentication)getActivity().getIntent().getSerializableExtra("auth");
+		
+		ListFileTask task = new ListFileTask(url, auth, getActivity());
+		/*
 		networkPath = getActivity().getIntent().getStringExtra("networkPath");
 		domain = getActivity().getIntent().getStringExtra("domain");
 		userid = getActivity().getIntent().getStringExtra("userid");
 		password = getActivity().getIntent().getStringExtra("password");
-		
+		*/
 		task.execute(networkPath, domain, userid, password);
 	}
 
@@ -53,10 +60,12 @@ public class FileBrowserFragment extends GridFragment {
 				Intent intent = new Intent(this.getActivity(),
 						FileBrowserActivity.class);
 
-				intent.putExtra("networkPath", file.getPath());
-				intent.putExtra("userid", userid);
+				intent.putExtra("url", file.getPath());
+				intent.putExtra("auth", auth);
+				
+				/*intent.putExtra("userid", userid);
 				intent.putExtra("password", password);
-				intent.putExtra("domain", domain);
+				intent.putExtra("domain", domain);*/
 				
 				startActivity(intent);
 			} else {
@@ -64,9 +73,9 @@ public class FileBrowserFragment extends GridFragment {
 						ImageViewActivity.class);
 
 				intent.putExtra("networkPath", file.getPath());
-				intent.putExtra("userid", userid);
-				intent.putExtra("password", password);
-				intent.putExtra("domain", domain);
+				intent.putExtra("userid", auth.getUsername());
+				intent.putExtra("password", auth.getPassword());
+				intent.putExtra("domain", auth.getDomain());
 				
 				startActivity(intent);
 			}
@@ -75,24 +84,29 @@ public class FileBrowserFragment extends GridFragment {
 		}
 
 	}
+	
+	@Override
+	public void onTrimMemory(int level) {
+		adapter.trimMemory(level);
+	}
 
 	private class ListFileTask extends AsyncTask<String, Integer, SmbFile[]> {
 
 		private Exception err;
-		private Context context;
+		final private Context context;
+		final private URL url;
+		final private NtlmPasswordAuthentication auth;
 		
-		protected ListFileTask(Context context) {
+		protected ListFileTask(URL url, NtlmPasswordAuthentication auth, Context context) {
+			this.url = url;
+			this.auth = auth;
 			this.context = context;
 		}
 		@Override
 		protected SmbFile[] doInBackground(String... params) {
 			try {
-				String path = params[0];
-				String domain = params[1];
-				String userid = params[2];
-				String password = params[3];
 				
-				SmbFile file = new SmbFile(path, new NtlmPasswordAuthentication(domain, userid, password));
+				SmbFile file = new SmbFile(url, auth);
 
 				file.connect();
 
@@ -108,20 +122,8 @@ public class FileBrowserFragment extends GridFragment {
 				};
 				SmbFile[] folders = file.listFiles(filterFolder);
 
-				SmbFileFilter filterImg = new SmbFileFilter() {
-
-					@Override
-					public boolean accept(SmbFile arg0) throws SmbException {
-						String filename = arg0.getName().toLowerCase();
-						if (filename.endsWith(".jpg")
-								|| filename.endsWith(".jpeg")
-								|| filename.endsWith("png")) {
-							return true;
-						}
-						return false;
-					}
-				};
-
+				SmbFileFilter filterImg = new ImageSmbFileFilter();
+				
 				SmbFile[] imgFiles = file.listFiles(filterImg);
 				Comparator<SmbFile> comparator = new Comparator<SmbFile>() {
 
@@ -181,8 +183,9 @@ public class FileBrowserFragment extends GridFragment {
 				
 			} 
 			else {
-				setListAdapter(new SmbBitmapFileAdapter(R.layout.widget_file_griditem,
-						getActivity(), result));
+				adapter = new SmbBitmapFileAdapter(R.layout.widget_file_griditem,
+						getActivity(), result);
+				setListAdapter(adapter);
 			}
 		}
 

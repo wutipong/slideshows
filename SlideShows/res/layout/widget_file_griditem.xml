@@ -5,7 +5,7 @@
     android:layout_width="150dp"
     android:layout_height="150dp"
     android:padding="8dp" >
-
+
     <ImageView
         android:id="@+id/iconView"
         android:layout_width="fill_parent"
@@ -13,18 +13,21 @@
         android:scaleType="centerCrop"
         android:src="@drawable/ic_picture"
         tools:ignore="ContentDescription" />
-
+
     <TextView
         android:id="@+id/textView1"
         android:layout_width="fill_parent"
         android:layout_height="32dp"
         android:layout_gravity="bottom|fill_horizontal"
         android:background="#66FFFFFF"
+        android:ellipsize="marquee"
         android:gravity="left|center_vertical"
+        android:marqueeRepeatLimit="marquee_forever"
         android:maxLines="1"
-        android:overScrollMode="ifContentScrolls"
+        android:overScrollMode="never"
         android:scrollbars="none"
-        android:text="Small Text"
+        android:singleLine="true"
+        android:text="Small Text ABCDEFGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         android:textAppearance="?android:attr/textAppearanceSmall"
         tools:ignore="HardcodedText" />
 

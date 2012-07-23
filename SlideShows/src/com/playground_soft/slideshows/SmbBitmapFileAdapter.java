@@ -5,7 +5,7 @@ import jcifs.smb.SmbFile;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.LayoutInflater;
@@ -20,8 +20,6 @@ public class SmbBitmapFileAdapter implements ListAdapter {
 	private Context context;
 	private SmbFile[] files;
 	private LruCache<Integer, Bitmap> cache;
-	private Bitmap tempBitmap;
-	private Bitmap folderBitmap;
 	private int layout;
 
 	SmbBitmapFileAdapter(int layout, Context context, SmbFile[] files) {
@@ -30,11 +28,6 @@ public class SmbBitmapFileAdapter implements ListAdapter {
 		this.files = files;
 
 		cache = new BitmapCache(1024 * 512);
-			
-		tempBitmap = BitmapFactory.decodeResource(context.getResources(),
-				R.drawable.ic_picture);
-		folderBitmap = BitmapFactory.decodeResource(context.getResources(),
-				R.drawable.ic_folder);
 	}
 
 	@Override
@@ -73,58 +66,66 @@ public class SmbBitmapFileAdapter implements ListAdapter {
 		tv1.setText(filename);
 
 		try {
-			if (subFile.isDirectory()) {
-				ic.setImageBitmap(folderBitmap);
-			} else {
-				if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")
-						|| filename.endsWith(".png")) {
-					Bitmap bitmap = cache.get(position);
-					if (bitmap != null) {
-						ic.setImageBitmap(bitmap);
-					} else {
-						ic.setImageBitmap(tempBitmap);
-						LoadImageTask task = new LoadImageTask(150, 150, LoadImageTask.ScaleBaseOn.ShorterSide, 
-								new LoadImageTask.TaskDone() {
-									
-									@Override
-									void onTaskDone(Bitmap bitmap) {
+			loadIcon(position, ic, pos, subFile);
 
-										cache.put(pos, bitmap);
-										ic.setImageBitmap(bitmap);
-										
-									}
-								}) ;
-								
-						task.execute(subFile);
-					}
-				}
-			}
+			if (subFile.isDirectory())
+				v.setBackgroundResource(R.drawable.bg_folder);
+			else
+				v.setBackgroundResource(R.drawable.bg_image);
 			
-			if(tv2 != null){
-				if(subFile.isDirectory()){
+			if (tv2 != null) {
+				if (subFile.isDirectory()) {
 					tv2.setText("");
 				} else {
 					int size = subFile.getContentLength();
 					String strSize;
-					if(size <1024) {
-						strSize = size+"B";
-					} else if (size <1024*1024){
-						strSize = size/1024+"KiB";
-					} else if (size < 1024*1024*1024) {
-						strSize = size/(1024*1024)+"MiB";
-					} else { 
-						strSize = size/(1024*1024*1024)+"GiB";
-					}	
-					tv2.setText("File size: "+strSize);
+					if (size < 1024) {
+						strSize = size + "B";
+					} else if (size < 1024 * 1024) {
+						strSize = size / 1024 + "KiB";
+					} else if (size < 1024 * 1024 * 1024) {
+						strSize = size / (1024 * 1024) + "MiB";
+					} else {
+						strSize = size / (1024 * 1024 * 1024) + "GiB";
+					}
+					tv2.setText("File size: " + strSize);
+
 				}
+
 			}
-			
 		} catch (SmbException e) {
 			Log.e("cifs", "", e);
 			e.printStackTrace();
 		}
-
 		return v;
+	}
+
+	private void loadIcon(int position, final ImageView ic, final int pos,
+			SmbFile subFile) {
+		Bitmap bitmap = cache.get(position);
+		if (bitmap != null) {
+			ic.setImageBitmap(bitmap);
+		} else {
+			ic.setImageDrawable(new ColorDrawable(
+					(int) (Math.random() * Integer.MAX_VALUE) | 0xff000000));
+			LoadImageTask task = new LoadImageTask(150, 150,
+					LoadImageTask.ScaleBaseOn.ShorterSide,
+					new LoadImageTask.TaskDone() {
+
+						@Override
+						void onTaskDone(Bitmap bitmap) {
+							if (bitmap == null) {
+								return;
+							}
+
+							cache.put(pos, bitmap);
+							ic.setImageBitmap(bitmap);
+
+						}
+					});
+
+			task.execute(subFile);
+		}
 	}
 
 	@Override
@@ -164,4 +165,7 @@ public class SmbBitmapFileAdapter implements ListAdapter {
 		return true;
 	}
 
+	public void trimMemory(int level) {
+		cache.evictAll();
+	}
 }

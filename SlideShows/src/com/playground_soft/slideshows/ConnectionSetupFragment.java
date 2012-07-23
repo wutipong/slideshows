@@ -1,5 +1,10 @@
 package com.playground_soft.slideshows;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import jcifs.smb.NtlmPasswordAuthentication;
+
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
@@ -43,10 +48,14 @@ public class ConnectionSetupFragment extends DialogFragment implements OnClickLi
 				networkPath = networkPath + "/";
 			
 			Intent intent = new Intent(getActivity(), FileBrowserActivity.class);
-			intent.putExtra("networkPath", networkPath);
-			intent.putExtra("userid", userid);
-			intent.putExtra("password", password);
-			intent.putExtra("domain", domain);
+			try {
+				intent.putExtra("url", new URL(networkPath));
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			intent.putExtra("auth", new NtlmPasswordAuthentication(domain, userid, password));
+			
 			
 			startActivity(intent);
 		}

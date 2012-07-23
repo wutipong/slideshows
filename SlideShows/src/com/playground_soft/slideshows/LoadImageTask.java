@@ -7,6 +7,7 @@ import jcifs.smb.SmbFile;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Log;
 
 class LoadImageTask extends AsyncTask<SmbFile, Void, Bitmap> {
 	
@@ -31,7 +32,34 @@ class LoadImageTask extends AsyncTask<SmbFile, Void, Bitmap> {
 			if(params.length != 1)
 				throw new InvalidParameterException();
 			
-			SmbFile file = params[0];
+			SmbFile file = null;
+			SmbFile inputFile = params[0];
+			if(inputFile.isDirectory())
+			{
+				SmbFile[] files = inputFile.listFiles(new ImageSmbFileFilter());
+				if(files.length >0) {
+					
+					for (int i = 0; i<files.length; i++) {
+						String inFilename = files[i].getName();
+						if(!inFilename.startsWith("cover.") &&
+								!inFilename.startsWith("folder."))
+							continue;
+						file = files[i];
+						break;
+					}
+					
+					if(file == null) {
+						int index = (int)(Math.random()* files.length); 
+						file = files[index];
+					}
+				}
+				else{
+					return null;
+				}
+			} else {
+				file = inputFile;
+			}
+			
 			BitmapFactory.Options options = new BitmapFactory.Options();
 			options.inJustDecodeBounds = true;
 			
@@ -63,6 +91,8 @@ class LoadImageTask extends AsyncTask<SmbFile, Void, Bitmap> {
 			options.inSampleSize/=2;
 			if(options.inSampleSize == 0)
 				options.inSampleSize = 1;
+			
+			Log.d("inSampleSize", "" + options.inSampleSize);
 			
 			options.inJustDecodeBounds = false;
 			bitmap = BitmapFactory.decodeStream(file

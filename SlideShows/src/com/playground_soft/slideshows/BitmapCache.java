@@ -16,7 +16,6 @@ public class BitmapCache extends LruCache<Integer, Bitmap> {
 	protected void entryRemoved (boolean evicted, 
 			Integer key, Bitmap oldValue, Bitmap newValue) {
 		super.entryRemoved(evicted, key, oldValue, newValue);
-		//oldValue.recycle();
 	}
 	
 }
