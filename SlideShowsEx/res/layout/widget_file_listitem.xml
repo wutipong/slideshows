@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/RelativeLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:background="@drawable/bg_shadow"
+    android:columnCount="2"
+    android:minWidth="@dimen/preferred_detailed_item_size"
+    android:minHeight="64dp"
+    android:orientation="horizontal"
+    android:padding="4dp"
+    android:rowCount="2"
+    tools:ignore="HardcodedText" >
+
+    <ImageView
+        android:id="@+id/iconView"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_margin="4dp"
+        android:contentDescription="Icon"
+        android:cropToPadding="true"
+        android:maxHeight="48dp"
+        android:maxWidth="48dp"
+        android:paddingBottom="4dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="4dp"
+        android:paddingTop="4dp"
+        android:scaleType="centerCrop"
+        android:src="@android:drawable/ic_menu_gallery" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="4dp"
+        android:layout_toRightOf="@+id/iconView"
+        android:autoLink="none"
+        android:drawablePadding="4dp"
+        android:ellipsize="marquee"
+        android:gravity="bottom"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:maxLines="1"
+        android:paddingLeft="4dp"
+        android:paddingTop="4dp"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        android:text="textView1"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_toRightOf="@+id/iconView"
+        android:ellipsize="marquee"
+        android:maxLines="1"
+        android:paddingBottom="4dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        android:text="textView2"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+</RelativeLayout>
